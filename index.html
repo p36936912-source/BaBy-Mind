@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f7e9f5">
+<title>BaBy Mind — Tiny thoughts, safe spaces</title>
+<style>
+:root{--ink:#342b4a;--muted:#756b86;--pink:#f6cde3;--lilac:#ded5ff;--blue:#d6efff;--cream:#fffaf5;--purple:#7962b7;--line:#eee5f3;--shadow:0 18px 45px #4e356512}
+*{box-sizing:border-box}body{margin:0;font-family:ui-rounded,"Trebuchet MS",system-ui,sans-serif;color:var(--ink);background:radial-gradient(circle at 10% 5%,#fff 0,transparent 28%),linear-gradient(135deg,#fff5f8,#f4f0ff 55%,#eef9ff);min-height:100vh}
+button,input,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:14px;padding:11px 16px;font-weight:750;transition:.18s}button:hover{transform:translateY(-1px);filter:brightness(.98)}.primary{background:var(--purple);color:white;box-shadow:0 7px 18px #7962b733}.soft{background:#f2edf9;color:var(--ink)}.danger{background:#fff0f2;color:#b34362}.hidden{display:none!important}
+.wrap{width:min(1100px,92%);margin:auto}.brand{display:flex;align-items:center;gap:12px;font-size:1.35rem;font-weight:900;letter-spacing:-.5px}.logo{width:48px;height:48px;border-radius:17px;background:linear-gradient(135deg,#ffd7e9,#d9d1ff);display:grid;place-items:center;font-size:26px;box-shadow:0 7px 20px #8c6bb31a}.topbar{display:flex;align-items:center;justify-content:space-between;padding:24px 0}.tiny{font-size:.84rem;color:var(--muted)}
+.login-layout{min-height:calc(100vh - 100px);display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:50px;padding:20px 0 70px}.hero h1{font-size:clamp(2.6rem,6vw,4.8rem);line-height:1.02;letter-spacing:-3px;margin:18px 0}.hero h1 span{color:var(--purple)}.hero p{max-width:490px;color:var(--muted);font-size:1.08rem;line-height:1.75}.figure-cloud{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}.floaty{padding:12px 15px;border:1px solid #ffffffb8;border-radius:18px;background:#ffffffb8;box-shadow:var(--shadow);font-size:1.3rem;animation:bob 4s ease-in-out infinite}.floaty:nth-child(2){animation-delay:.5s}.floaty:nth-child(3){animation-delay:1s}@keyframes bob{50%{transform:translateY(-7px)}}.card{background:#ffffffdc;border:1px solid #fff;border-radius:28px;padding:30px;box-shadow:var(--shadow);backdrop-filter:blur(12px)}.card h2{margin:0 0 8px;font-size:1.7rem}.field{margin:18px 0}.field label{display:block;font-size:.9rem;font-weight:800;margin-bottom:8px}.field input,.field textarea{width:100%;border:1px solid #e8deef;background:#fffdfd;padding:14px 15px;border-radius:14px;outline:none;color:var(--ink)}.field input:focus,.field textarea:focus{border-color:#a28bd6;box-shadow:0 0 0 3px #a28bd622}.full{width:100%}.note-small{font-size:.78rem;color:var(--muted);line-height:1.55;margin-top:14px}.app-head{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:22px 0}.app-head h1{margin:0;font-size:clamp(1.8rem,4vw,2.7rem);letter-spacing:-1.5px}.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.welcome{background:linear-gradient(120deg,#fbe0ed,#e8e1ff 60%,#dff4ff);padding:25px 28px;border-radius:25px;display:flex;align-items:center;justify-content:space-between;gap:20px;margin:10px 0 26px}.welcome h2{margin:0 0 7px}.welcome p{margin:0;color:#665b7b}.mascot{font-size:3.5rem;white-space:nowrap}.editor{margin-bottom:25px}.editor h2{margin:0 0 4px}.editor-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}.field textarea{min-height:125px;resize:vertical}.editor-actions{display:flex;gap:10px;flex-wrap:wrap}.search-row{display:flex;gap:12px;align-items:center;margin:20px 0}.search-row input{flex:1;min-width:0;border:1px solid #e8deef;background:#ffffffdb;padding:13px 15px;border-radius:14px;outline:none}.note-count{font-size:.88rem;color:var(--muted);white-space:nowrap}.notes-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px;padding-bottom:50px}.note-card{border-radius:22px;padding:20px;background:#fff;box-shadow:var(--shadow);border:1px solid #fff;position:relative;min-height:190px;display:flex;flex-direction:column}.note-card:nth-child(3n+1){background:#fff9fc}.note-card:nth-child(3n+2){background:#fbf9ff}.note-card:nth-child(3n){background:#f7fcff}.note-title{font-size:1.12rem;font-weight:900;margin:0 0 10px;overflow-wrap:anywhere}.note-body{color:#665d75;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;flex:1}.note-meta{font-size:.76rem;color:#91869e;margin:16px 0 12px}.note-actions{display:flex;gap:8px}.note-actions button{padding:8px 11px;font-size:.83rem}.empty{grid-column:1/-1;text-align:center;padding:45px 20px;background:#ffffffa8;border-radius:22px;color:var(--muted)}.empty .big{font-size:3rem}.footer{text-align:center;color:#9388a2;font-size:.8rem;padding:0 0 25px}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#342b4a;color:#fff;padding:12px 18px;border-radius:13px;box-shadow:var(--shadow);z-index:5}
+@media(max-width:760px){.login-layout{grid-template-columns:1fr;gap:24px;padding-top:10px}.hero h1{font-size:3.1rem}.hero p{font-size:1rem}.card{padding:23px}.app-head{align-items:flex-start;flex-direction:column}.welcome{padding:20px}.mascot{font-size:2.7rem}.notes-grid{grid-template-columns:1fr}.editor-grid{grid-template-columns:1fr}.search-row{align-items:stretch;flex-direction:column}.note-count{white-space:normal}}
+</style>
+</head>
+<body>
+<header class="wrap topbar">
+  <div class="brand"><div class="logo">🧠</div><div>BaBy Mind<div class="tiny">Tiny thoughts, safe spaces</div></div></div>
+  <div class="tiny">☁️ Your little memory cloud</div>
+</header>
+
+<main id="loginScreen" class="wrap login-layout">
+  <section class="hero">
+    <div class="tiny">A cozy home for your thoughts ✨</div>
+    <h1>Small notes.<br><span>Big memories.</span></h1>
+    <p>Keep your ideas, reminders, plans, and little discoveries together. BaBy Mind makes saving information feel light, simple, and sweet.</p>
+    <div class="figure-cloud" aria-label="Tiny storage characters">
+      <div class="floaty">📦 Tiny data box</div><div class="floaty">☁️ Memory cloud</div><div class="floaty">💾 Mini saver</div><div class="floaty">⭐ Idea spark</div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Welcome back 🌷</h2><p class="tiny">Sign in to open your personal notebook.</p>
+    <form id="loginForm">
+      <div class="field"><label for="username">Username</label><input id="username" autocomplete="username" placeholder="Choose a username" required minlength="2" maxlength="30"></div>
+      <div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" placeholder="At least 4 characters" required minlength="4"></div>
+      <button class="primary full" type="submit">Enter BaBy Mind →</button>
+    </form>
+    <p class="note-small">First time here? Enter a username and password to create a local demo account. Use the same details next time on this browser.</p>
+    <p class="note-small">🔒 Demo notice: this starter version stores data in this browser only. It is not secure enough for sensitive information and does not sync between customers or devices.</p>
+  </section>
+</main>
+
+<main id="notesScreen" class="wrap hidden">
+  <div class="app-head">
+    <div><div class="tiny">YOUR PERSONAL SPACE ✨</div><h1>My little notebook</h1></div>
+    <div class="toolbar"><span id="userBadge" class="tiny"></span><button id="exportBtn" class="soft">⬇ Export notes</button><button id="logoutBtn" class="soft">Log out</button></div>
+  </div>
+  <section class="welcome"><div><h2>Hey, mind keeper! 🌼</h2><p>Every little thought deserves a place. Save it before it flies away.</p></div><div class="mascot" aria-hidden="true">🧸📚</div></section>
+  <section class="card editor">
+    <h2 id="editorHeading">✍️ Add a new note</h2><p class="tiny">Give your note a title and write anything you want to remember.</p>
+    <form id="noteForm">
+      <div class="editor-grid">
+        <div class="field"><label for="noteTitle">Note title</label><input id="noteTitle" maxlength="100" placeholder="e.g. My project ideas" required></div>
+        <div class="field"><label for="noteTag">Category (optional)</label><input id="noteTag" maxlength="30" placeholder="e.g. Study, Work, Personal"></div>
+      </div>
+      <div class="field"><label for="noteBody">Your note</label><textarea id="noteBody" maxlength="20000" placeholder="Write your thoughts here..." required></textarea></div>
+      <div class="editor-actions"><button class="primary" type="submit" id="saveBtn">💾 Save note</button><button class="soft hidden" type="button" id="cancelEdit">Cancel edit</button></div>
+    </form>
+  </section>
+  <div class="search-row"><input id="searchNotes" type="search" placeholder="🔎 Search your notes..."><span class="note-count" id="noteCount">0 notes saved</span></div>
+  <section id="notesGrid" class="notes-grid" aria-live="polite"></section>
+  <div class="footer">Made with 💜 by BaBy Mind · Your ideas, one tiny note at a time</div>
+</main>
+<div id="toast" class="toast hidden" role="status"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const USERS_KEY = 'babymind_demo_users_v1';
+const SESSION_KEY = 'babymind_demo_session_v1';
+let currentUser = null;
+let editingId = null;
+function readJSON(key, fallback){try{return JSON.parse(localStorage.getItem(key)) ?? fallback}catch{return fallback}}
+function userKey(username){return 'babymind_notes_' + username.toLowerCase()}
+function getNotes(){return currentUser ? readJSON(userKey(currentUser), []) : []}
+function setNotes(notes){localStorage.setItem(userKey(currentUser), JSON.stringify(notes))}
+function safeText(value){return String(value ?? '')}
+function toast(message){$('toast').textContent=message;$('toast').classList.remove('hidden');setTimeout(()=>$('toast').classList.add('hidden'),2400)}
+function showLogin(){ $('loginScreen').classList.remove('hidden');$('notesScreen').classList.add('hidden');currentUser=null;editingId=null; }
+function showNotes(username){currentUser=username;$('loginScreen').classList.add('hidden');$('notesScreen').classList.remove('hidden');$('userBadge').textContent='👤 '+username;resetEditor();renderNotes();}
+$('loginForm').addEventListener('submit', e=>{
+ e.preventDefault();
+ const username=$('username').value.trim(), password=$('password').value;
+ if(username.length<2 || password.length<4){toast('Please use a username and password with enough characters.');return}
+ const users=readJSON(USERS_KEY,{});
+ const key=username.toLowerCase();
+ if(users[key]){
+   if(users[key].password!==password){toast('Those demo login details do not match.');return}
+ }else{
+   users[key]={username,password};
+   localStorage.setItem(USERS_KEY,JSON.stringify(users));
+   toast('Your local demo account is ready 🌷');
+ }
+ localStorage.setItem(SESSION_KEY,username);
+ showNotes(username);
+});
+$('logoutBtn').addEventListener('click',()=>{localStorage.removeItem(SESSION_KEY);showLogin();$('password').value='';});
+function resetEditor(){editingId=null;$('noteForm').reset();$('editorHeading').textContent='✍️ Add a new note';$('saveBtn').textContent='💾 Save note';$('cancelEdit').classList.add('hidden')}
+$('cancelEdit').addEventListener('click',resetEditor);
+$('noteForm').addEventListener('submit',e=>{
+ e.preventDefault();if(!currentUser)return;
+ const title=$('noteTitle').value.trim(), body=$('noteBody').value.trim(), tag=$('noteTag').value.trim();
+ if(!title||!body){toast('Add a title and some note text first.');return}
+ const notes=getNotes(), now=new Date().toISOString();
+ if(editingId){const i=notes.findIndex(n=>n.id===editingId);if(i>=0)notes[i]={...notes[i],title,body,tag,updatedAt:now};toast('Note updated ✨')}
+ else{notes.unshift({id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),title,body,tag,createdAt:now,updatedAt:now});toast('Note saved 💜')}
+ setNotes(notes);resetEditor();renderNotes();
+});
+function formatDate(date){try{return new Date(date).toLocaleString(undefined,{month:'short',day:'numeric',year:'numeric'})}catch{return ''}}
+function renderNotes(){
+ const query=$('searchNotes').value.trim().toLowerCase();
+ const notes=getNotes().filter(n=>[n.title,n.body,n.tag].some(v=>safeText(v).toLowerCase().includes(query)));
+ $('noteCount').textContent=`${getNotes().length} note${getNotes().length===1?'':'s'} saved`;
+ const grid=$('notesGrid');grid.replaceChildren();
+ if(!notes.length){const empty=document.createElement('div');empty.className='empty';empty.innerHTML='<div class="big">🪴</div><h3>'+ (query?'No matching notes':'Your notebook is waiting!') +'</h3><p>'+(query?'Try another search word.':'Save your first thought using the form above.')+'</p>';grid.appendChild(empty);return}
+ notes.forEach(note=>{
+   const card=document.createElement('article');card.className='note-card';
+   const title=document.createElement('h3');title.className='note-title';title.textContent=note.title;
+   const body=document.createElement('div');body.className='note-body';body.textContent=note.body;
+   const meta=document.createElement('div');meta.className='note-meta';meta.textContent=(note.tag?'🏷 '+note.tag+' · ':'')+'Updated '+formatDate(note.updatedAt||note.createdAt);
+   const actions=document.createElement('div');actions.className='note-actions';
+   const edit=document.createElement('button');edit.className='soft';edit.textContent='✏️ Edit';edit.addEventListener('click',()=>startEdit(note.id));
+   const del=document.createElement('button');del.className='danger';del.textContent='🗑 Delete';del.addEventListener('click',()=>deleteNote(note.id));
+   actions.append(edit,del);card.append(title,body,meta,actions);grid.appendChild(card);
+ });
+}
+function startEdit(id){const n=getNotes().find(x=>x.id===id);if(!n)return;editingId=id;$('noteTitle').value=n.title;$('noteBody').value=n.body;$('noteTag').value=n.tag||'';$('editorHeading').textContent='📝 Edit your note';$('saveBtn').textContent='💾 Update note';$('cancelEdit').classList.remove('hidden');$('noteTitle').focus();window.scrollTo({top:0,behavior:'smooth'})}
+function deleteNote(id){const n=getNotes().find(x=>x.id===id);if(!n)return;if(!confirm(`Delete "${n.title}"? This cannot be undone.`))return;setNotes(getNotes().filter(x=>x.id!==id));if(editingId===id)resetEditor();renderNotes();toast('Note deleted.')}
+$('searchNotes').addEventListener('input',renderNotes);
+$('exportBtn').addEventListener('click',()=>{
+ const blob=new Blob([JSON.stringify({app:'BaBy Mind',username:currentUser,exportedAt:new Date().toISOString(),notes:getNotes()},null,2)],{type:'application/json'});
+ const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='baby-mind-notes.json';a.click();URL.revokeObjectURL(url);toast('Notes exported to a file ⬇');
+});
+const savedSession=localStorage.getItem(SESSION_KEY);
+if(savedSession)showNotes(savedSession);
+</script>
+</body>
+</html>
