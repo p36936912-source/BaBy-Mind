@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fff5f8">
+  <meta name="description" content="BaBy Mind: a colorful space for your thoughts.">
+  <title>BaBy Mind | Private Notes</title>
+
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self';
+             script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+             style-src 'self' 'unsafe-inline';
+             img-src 'self' data:;
+             connect-src 'self' https://zlsfyksegekqvexdjsmm.supabase.co wss://zlsfyksegekqvexdjsmm.supabase.co;
+             object-src 'none';
+             base-uri 'self';
+             form-action 'self';
+             upgrade-insecure-requests;">
+
+  <style>
+    :root {
+      --page:#fff5f8; --surface:#fff; --ink:#38233d;
+      --muted:#796b82; --accent:#e86c9a; --accent-dark:#c94d7d;
+      --soft:#ffe1ec; --border:#f1d8e4;
+      --shadow:0 8px 28px rgba(75,36,75,.08);
+      --radius:18px;
+      --display:Georgia,"Times New Roman",serif;
+      --body:system-ui,-apple-system,"Segoe UI",sans-serif;
+    }
+
+    body.theme-pink {
+      --page:#fff5f8;--surface:#fff;--ink:#38233d;
+      --muted:#796b82;--accent:#e86c9a;--accent-dark:#c94d7d;
+      --soft:#ffe1ec;--border:#f1d8e4;
+    }
+    body.theme-lavender {
+      --page:#f5f2ff;--surface:#fff;--ink:#2d2450;
+      --muted:#77708f;--accent:#8170e8;--accent-dark:#5e4cc5;
+      --soft:#e8e2ff;--border:#ddd5fa;
+    }
+    body.theme-mint {
+      --page:#effbf6;--surface:#fff;--ink:#183d35;
+      --muted:#648078;--accent:#39a98a;--accent-dark:#24846b;
+      --soft:#d7f5e9;--border:#cceade;
+    }
+    body.theme-sunshine {
+      --page:#fff9e9;--surface:#fff;--ink:#493719;
+      --muted:#85734e;--accent:#e3a72f;--accent-dark:#ad7812;
+      --soft:#fff0c6;--border:#f0e0b4;
+    }
+
+    * { box-sizing:border-box; }
+    [hidden] { display:none!important; }
+
+    body {
+      margin:0;min-height:100vh;background:var(--page);
+      color:var(--ink);font-family:var(--body);
+      transition:background .25s,color .25s;
+    }
+
+    button,input,textarea { font:inherit; }
+    button { cursor:pointer; }
+
+    button:focus-visible,input:focus-visible,textarea:focus-visible {
+      outline:3px solid var(--accent);outline-offset:3px;
+    }
+
+    .container { width:min(900px,calc(100% - 32px));margin:0 auto; }
+
+    header {
+      padding:22px 0;background:var(--surface);
+      border-bottom:1px solid var(--border);
+    }
+
+    .header-inner {
+      display:flex;align-items:center;justify-content:space-between;gap:18px;
+    }
+
+    .brand-area { display:flex;align-items:center;gap:13px;min-width:0; }
+
+    .baby-logo {
+      display:grid;place-items:center;width:64px;height:64px;
+      flex:0 0 64px;overflow:hidden;border-radius:20px;
+      background:var(--soft);
+      box-shadow:inset 0 0 0 1px var(--border);
+    }
+
+    .baby-logo svg { width:54px;height:54px;display:block; }
+
+    .brand {
+      margin:0;font-family:var(--display);
+      font-size:clamp(27px,5vw,38px);letter-spacing:-1px;
+    }
+
+    .subtitle { margin:5px 0 0;color:var(--muted);font-size:13px; }
+
+    .theme-area {
+      display:flex;flex-direction:column;gap:7px;align-items:flex-end;
+    }
+
+    .theme-label { color:var(--muted);font-size:12px;font-weight:600; }
+    .theme-picker { display:flex;gap:8px;align-items:center; }
+
+    .theme-dot {
+      width:29px;height:29px;padding:0;
+      border:3px solid var(--surface);border-radius:50%;
+      box-shadow:0 0 0 1px var(--border);
+    }
+
+    .theme-dot[aria-pressed="true"] {
+      outline:2px solid var(--ink);outline-offset:2px;
+    }
+
+    .dot-pink { background:#e86c9a; }
+    .dot-lavender { background:#8170e8; }
+    .dot-mint { background:#39a98a; }
+    .dot-sunshine { background:#e3a72f; }
+
+    main { padding:28px 0 45px; }
+    .welcome { margin:0 0 20px; }
+
+    .welcome h2 {
+      margin:0 0 7px;font-family:var(--display);
+      font-size:clamp(25px,4vw,32px);
+    }
+
+    .welcome p {
+      margin:0;color:var(--muted);font-size:14px;line-height:1.7;
+    }
+
+    .panel {
+      padding:23px;border:1px solid var(--border);
+      border-radius:var(--radius);background:var(--surface);
+      box-shadow:var(--shadow);
+    }
+
+    .panel h2,.notes-heading h2 {
+      margin:0;font-family:var(--display);font-size:24px;
+    }
+
+    label { display:block;margin:15px 0 7px;font-size:14px;font-weight:650; }
+
+    input,textarea {
+      display:block;width:100%;padding:12px 14px;
+      border:1px solid var(--border);border-radius:11px;
+      background:var(--surface);color:var(--ink);
+    }
+
+    textarea { min-height:140px;resize:vertical;line-height:1.65; }
+
+    input::placeholder,textarea::placeholder {
+      color:var(--muted);opacity:.8;
+    }
+
+    .actions { display:flex;flex-wrap:wrap;gap:10px;margin-top:15px; }
+
+    .btn {
+      padding:11px 16px;border:1px solid transparent;
+      border-radius:11px;font-weight:650;
+    }
+
+    .btn-primary { background:var(--accent);color:white; }
+    .btn-primary:hover { background:var(--accent-dark); }
+
+    .btn-secondary {
+      border-color:var(--border);background:var(--surface);color:var(--ink);
+    }
+
+    .btn:disabled { opacity:.6;cursor:not-allowed; }
+
+    .notes-heading {
+      display:flex;justify-content:space-between;align-items:center;
+      gap:12px;margin:30px 0 14px;
+    }
+
+    .note-count { color:var(--muted);font-size:13px; }
+
+    .note-list {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));
+      gap:14px;
+    }
+
+    .note {
+      min-width:0;padding:18px;border:1px solid var(--border);
+      border-radius:var(--radius);background:var(--surface);
+      box-shadow:var(--shadow);overflow-wrap:anywhere;
+    }
+
+    .note h3 { margin:0 0 9px;font-size:17px; }
+
+    .note p {
+      margin:0;color:var(--muted);white-space:pre-wrap;line-height:1.6;
+    }
+
+    .note-meta { margin-top:13px;color:var(--muted);font-size:11px; }
+
+    .note-actions { display:flex;flex-wrap:wrap;gap:8px;margin-top:13px; }
+
+    .note-actions button {
+      padding:7px 11px;border:1px solid var(--border);
+      border-radius:8px;background:var(--soft);color:var(--ink);
+      font-size:13px;
+    }
+
+    .empty {
+      grid-column:1/-1;padding:26px 18px;
+      border:1px dashed var(--border);border-radius:var(--radius);
+      color:var(--muted);text-align:center;background:var(--surface);
+    }
+
+    .status {
+      min-height:22px;margin:12px 0 0;color:var(--accent-dark);
+      font-size:13px;line-height:1.5;
+    }
+
+    .privacy-note {
+      margin-top:22px;padding:14px 16px;border-radius:12px;
+      background:var(--soft);color:var(--ink);font-size:12px;line-height:1.7;
+    }
+
+    footer {
+      padding:19px 0;border-top:1px solid var(--border);
+      color:var(--muted);font-size:12px;line-height:1.6;
+    }
+
+    .account-row {
+      display:flex;align-items:center;justify-content:space-between;
+      gap:12px;flex-wrap:wrap;margin-bottom:20px;
+    }
+
+    .account-email {
+      font-size:13px;color:var(--muted);overflow-wrap:anywhere;
+    }
+
+    @media(max-width:600px) {
+      .header-inner { align-items:flex-start;flex-direction:column; }
+      .theme-area { align-items:flex-start; }
+      .panel { padding:17px; }
+    }
+
+    @media(prefers-reduced-motion:reduce) {
+      *,*::before,*::after {
+        scroll-behavior:auto!important;transition:none!important;
+      }
+    }
+  </style>
+</head>
+
+<body class="theme-pink">
+<header>
+  <div class="container header-inner">
+    <div class="brand-area">
+      <div class="baby-logo" role="img" aria-label="Cute baby face illustration">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M24 36 C15 16 40 8 51 20 C67 5 89 22 78 40" fill="#9B79E8"/>
+          <circle cx="50" cy="51" r="33" fill="#FFD9B5"/>
+          <path d="M19 43 C15 25 34 12 48 25 C59 10 82 20 82 40 C68 34 57 31 47 36 C37 41 28 43 19 43Z" fill="#6C4B3D"/>
+          <circle cx="38" cy="51" r="3.5" fill="#38233D"/>
+          <circle cx="62" cy="51" r="3.5" fill="#38233D"/>
+          <ellipse cx="29" cy="61" rx="7" ry="4" fill="#F29BAF" opacity=".8"/>
+          <ellipse cx="71" cy="61" rx="7" ry="4" fill="#F29BAF" opacity=".8"/>
+          <path d="M42 65 Q50 73 58 65" fill="none" stroke="#A94D68" stroke-width="3" stroke-linecap="round"/>
+          <path d="M72 13 L76 5 M82 17 L90 14 M23 19 L18 12" stroke="#E3A72F" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="brand">BaBy Mind</h1>
+        <p class="subtitle">A little space for your thoughts ✨</p>
+      </div>
+    </div>
+
+    <div class="theme-area">
+      <span class="theme-label">Choose your theme</span>
+      <div class="theme-picker" aria-label="Color themes">
+        <button class="theme-dot dot-pink" type="button" data-theme="pink" aria-label="Pink theme" aria-pressed="true" title="Pink"></button>
+        <button class="theme-dot dot-lavender" type="button" data-theme="lavender" aria-label="Lavender theme" aria-pressed="false" title="Lavender"></button>
+        <button class="theme-dot dot-mint" type="button" data-theme="mint" aria-label="Mint theme" aria-pressed="false" title="Mint"></button>
+        <button class="theme-dot dot-sunshine" type="button" data-theme="sunshine" aria-label="Sunshine theme" aria-pressed="false" title="Sunshine"></button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <section class="welcome">
+    <h2>Your thoughts, your little world 🌷</h2>
+    <p>Capture your ideas, save little memories, and make each day colorful.</p>
+  </section>
+
+  <section class="panel" id="auth-panel" aria-labelledby="auth-heading">
+    <h2 id="auth-heading">Welcome to your little space 💗</h2>
+    <p class="account-email">Create an account or log in to keep your notes synced online.</p>
+
+    <form id="auth-form">
+      <label for="auth-email">Username</label>
+      <input id="auth-email" type="text" autocomplete="username"
+        minlength="3" maxlength="30" pattern="[A-Za-z0-9_]{3,30}"
+        title="Use 3–30 letters, numbers, or underscores only."
+        placeholder="Choose a username" required>
+
+      <label for="auth-password">Password</label>
+      <input id="auth-password" type="password" autocomplete="current-password"
+        minlength="6" maxlength="72" placeholder="At least 6 characters" required>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="login-button" type="submit">Log in 💗</button>
+        <button class="btn btn-secondary" id="signup-button" type="button">Create account</button>
+      </div>
+    </form>
+
+    <p class="status" id="auth-status" role="status" aria-live="polite"></p>
+  </section>
+
+  <section id="app-panel" hidden>
+    <div class="account-row">
+      <div>
+        <strong>Your private notebook 💌</strong>
+        <div class="account-email" id="signed-in-email"></div>
+      </div>
+      <button class="btn btn-secondary" id="logout-button" type="button">Log out</button>
+    </div>
+
+    <section class="panel" aria-labelledby="editor-heading">
+      <h2 id="editor-heading">Write a note 📝</h2>
+
+      <form id="note-form">
+        <label for="note-title">Note title</label>
+        <input id="note-title" name="title" type="text" maxlength="120"
+          placeholder="e.g. My happy thoughts" autocomplete="off" required>
+
+        <label for="note-content">Your thoughts</label>
+        <textarea id="note-content" name="content" maxlength="10000"
+          placeholder="Write something lovely..." required></textarea>
+
+        <div class="actions">
+          <button class="btn btn-primary" type="submit" id="save-button">Save note 💗</button>
+          <button class="btn btn-secondary" type="button" id="cancel-button" hidden>Cancel edit</button>
+        </div>
+      </form>
+
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section aria-labelledby="notes-heading">
+      <div class="notes-heading">
+        <h2 id="notes-heading">My little notes 💌</h2>
+        <span class="note-count" id="note-count">0 notes</span>
+      </div>
+      <div id="note-list" class="note-list"></div>
+    </section>
+
+    <aside class="privacy-note">
+      <strong>A small privacy reminder:</strong>
+      Your cloud notes are protected only when your Supabase database
+      permissions and Row Level Security (RLS) policies are configured correctly.
+      Use a strong password and log out on shared devices. Never put a Supabase
+      secret or service-role key in this file.
+    </aside>
+  </section>
+</main>
+
+<footer>
+  <div class="container">Made with care at BaBy Mind. Keep your thoughts colorful! 🌈</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+"use strict";
+
+(() => {
+  // Your existing Supabase project settings.
+  const SUPABASE_URL = "https://zlsfyksegekqvexdjsmm.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_mtWVyB_3uS1uc-4v_LDlag_DMoX9A1R";
+
+  const authPanel = document.getElementById("auth-panel");
+  const appPanel = document.getElementById("app-panel");
+  const authForm = document.getElementById("auth-form");
+  const authEmail = document.getElementById("auth-email");
+  const authPassword = document.getElementById("auth-password");
+  const authStatus = document.getElementById("auth-status");
+  const signupButton = document.getElementById("signup-button");
+  const loginButton = document.getElementById("login-button");
+  const logoutButton = document.getElementById("logout-button");
+  const signedInEmail = document.getElementById("signed-in-email");
+
+  const form = document.getElementById("note-form");
+  const titleInput = document.getElementById("note-title");
+  const contentInput = document.getElementById("note-content");
+  const noteList = document.getElementById("note-list");
+  const noteCount = document.getElementById("note-count");
+  const status = document.getElementById("status");
+  const saveButton = document.getElementById("save-button");
+  const cancelButton = document.getElementById("cancel-button");
+
+  const allowedThemes = ["pink", "lavender", "mint", "sunshine"];
+
+  let currentUser = null;
+  let notes = [];
+  let editingId = null;
+  let busy = false;
+  let authSubscription = null;
+
+  const clientReady = Boolean(
+    window.supabase && window.supabase.createClient
+  );
+
+  const db = clientReady
+    ? window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY,
+        {
+          auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true
+          }
+        }
+      )
+    : null;
+
+  function setAuthStatus(message) {
+    authStatus.textContent = message;
+  }
+
+  function setStatus(message) {
+    status.textContent = message;
+  }
+
+  // This username system is compatible only with accounts
+  // created through this same website.
+  function usernameToEmail(value) {
+    const username = value.trim().toLowerCase();
+
+    if (!/^[a-z0-9_]{3,30}$/.test(username)) {
+      throw new Error(
+        "Username must contain 3–30 letters, numbers, or underscores."
+      );
+    }
+
+    return `${username}@users.babymind.invalid`;
+  }
+
+  function setBusy(value) {
+    busy = value;
+    loginButton.disabled = value;
+    signupButton.disabled = value;
+    logoutButton.disabled = value;
+    saveButton.disabled = value;
+  }
+
+  function applyTheme(theme) {
+    if (!allowedThemes.includes(theme)) theme = "pink";
+
+    document.body.className = `theme-${theme}`;
+
+    document.querySelectorAll("[data-theme]").forEach(button => {
+      button.setAttribute(
+        "aria-pressed",
+        String(button.dataset.theme === theme)
+      );
+    });
+
+    try {
+      localStorage.setItem("baby-mind-theme-v1", theme);
+    } catch (_) {}
+  }
+
+  document.querySelectorAll("[data-theme]").forEach(button => {
+    button.addEventListener("click", () => {
+      applyTheme(button.dataset.theme);
+    });
+  });
+
+  try {
+    const savedTheme = localStorage.getItem("baby-mind-theme-v1");
+    if (savedTheme) applyTheme(savedTheme);
+  } catch (_) {}
+
+  function makeElement(tag, className, text) {
+    const el = document.createElement(tag);
+
+    if (className) el.className = className;
+    if (text !== undefined) el.textContent = text;
+
+    return el;
+  }
+
+  function resetForm() {
+    form.reset();
+    editingId = null;
+    saveButton.textContent = "Save note 💗";
+    cancelButton.hidden = true;
+  }
+
+  function showSignedOut(message = "") {
+    currentUser = null;
+    notes = [];
+    editingId = null;
+
+    authPanel.hidden = false;
+    appPanel.hidden = true;
+    authPassword.value = "";
+
+    setAuthStatus(message);
+    setStatus("");
+    renderNotes();
+    resetForm();
+  }
+
+  async function showSignedIn(user) {
+    if (!user) return;
+
+    currentUser = user;
+    authPanel.hidden = true;
+    appPanel.hidden = false;
+
+    const internalEmail = user.email || "";
+
+    signedInEmail.textContent =
+      internalEmail.endsWith("@users.babymind.invalid")
+        ? `Username: ${internalEmail.split("@")[0]}`
+        : (internalEmail || "Signed in");
+
+    setAuthStatus("");
+    await loadNotes();
+  }
+
+  async function signUp() {
+    if (!db || busy) return;
+    if (!authForm.reportValidity()) return;
+
+    let email;
+
+    try {
+      email = usernameToEmail(authEmail.value);
+    } catch (error) {
+      setAuthStatus(error.message);
+      return;
+    }
+
+    setBusy(true);
+    setAuthStatus("Creating your account…");
+
+    try {
+      const { data, error } = await db.auth.signUp({
+        email,
+        password: authPassword.value
+      });
+
+      if (error) throw error;
+
+      if (data.session && data.user) {
+        await showSignedIn(data.user);
+        setAuthStatus("");
+      } else {
+        setAuthStatus(
+          "Account request received, but no active session was returned. " +
+          "Check Supabase Authentication settings and email confirmation."
+        );
+      }
+    } catch (error) {
+      setAuthStatus(
+        error.message || "Could not create your account."
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  authForm.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    if (!db) {
+      setAuthStatus(
+        "Supabase did not load. Check your internet connection and reload."
+      );
+      return;
+    }
+
+    if (busy || !authForm.reportValidity()) return;
+
+    let email;
+
+    try {
+      email = usernameToEmail(authEmail.value);
+    } catch (error) {
+      setAuthStatus(error.message);
+      return;
+    }
+
+    setBusy(true);
+    setAuthStatus("Logging you in…");
+
+    try {
+      const { data, error } = await db.auth.signInWithPassword({
+        email,
+        password: authPassword.value
+      });
+
+      if (error) throw error;
+
+      await showSignedIn(data.user);
+    } catch (error) {
+      setAuthStatus(
+        error.message || "Could not log in. Check your username and password."
+      );
+    } finally {
+      setBusy(false);
+    }
+  });
+
+  signupButton.addEventListener("click", signUp);
+
+  logoutButton.addEventListener("click", async () => {
+    if (!db || busy) return;
+
+    setBusy(true);
+
+    try {
+      const { error } = await db.auth.signOut();
+
+      if (error) throw error;
+
+      showSignedOut("You have logged out safely. See you soon! 💗");
+    } catch (error) {
+      setStatus(error.message || "Could not log out.");
+    } finally {
+      setBusy(false);
+    }
+  });
+
+  // Load only the signed-in user's notes.
+  // A failed request is not treated as an empty notebook.
+  async function loadNotes() {
+    if (!currentUser || !db) return false;
+
+    const requestedUserId = currentUser.id;
+
+    setStatus("Loading your notes…");
+
+    try {
+      const { data, error } = await db
+        .from("notes")
+        .select("id,user_id,title,content,created_at")
+        .eq("user_id", requestedUserId)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      if (!currentUser || currentUser.id !== requestedUserId) {
+        return false;
+      }
+
+      notes = Array.isArray(data) ? data : [];
+      renderNotes();
+
+      setStatus(
+        notes.length
+          ? ""
+          : "No cloud notes were found for this account. Your existing database records have not been deleted."
+      );
+
+      return true;
+    } catch (error) {
+      notes = [];
+      renderNotes();
+
+      setStatus(
+        "Could not load cloud notes: " +
+        (error.message || "Unknown error") +
+        ". Check the notes table, column names, and RLS policies."
+      );
+
+      return false;
+    }
+  }
+
+  function renderNotes() {
+    noteList.replaceChildren();
+
+    noteCount.textContent =
+      `${notes.length} ${notes.length === 1 ? "note" : "notes"}`;
+
+    if (!currentUser || notes.length === 0) {
+      noteList.appendChild(
+        makeElement(
+          "div",
+          "empty",
+          currentUser
+            ? "No notes loaded. Check the status message above."
+            : "Log in to see your private notes."
+        )
+      );
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    for (const note of notes) {
+      const article = makeElement("article", "note");
+
+      article.appendChild(makeElement("h3", "", note.title || ""));
+      article.appendChild(makeElement("p", "", note.content || ""));
+
+      const date = new Date(note.created_at);
+
+      article.appendChild(
+        makeElement(
+          "div",
+          "note-meta",
+          Number.isNaN(date.getTime())
+            ? "Saved note"
+            : `Created: ${date.toLocaleString()}`
+        )
+      );
+
+      const actions = makeElement("div", "note-actions");
+      const editButton = makeElement("button", "", "Edit ✏️");
+      const deleteButton = makeElement("button", "", "Delete 🗑️");
+
+      editButton.type = "button";
+      deleteButton.type = "button";
+
+      editButton.addEventListener("click", () => {
+        editingId = note.id;
+        titleInput.value = note.title || "";
+        contentInput.value = note.content || "";
+        saveButton.textContent = "Update note 💗";
+        cancelButton.hidden = false;
+        titleInput.focus();
+        setStatus("You are editing this note.");
+      });
+
+      deleteButton.addEventListener("click", async () => {
+        if (!currentUser || !db || busy) return;
+
+        if (!window.confirm(
+          `Delete "${note.title}"? This cannot be undone.`
+        )) return;
+
+        setBusy(true);
+        setStatus("Deleting note…");
+
+        try {
+          const { data, error } = await db
+            .from("notes")
+            .delete()
+            .eq("id", note.id)
+            .eq("user_id", currentUser.id)
+            .select("id")
+            .maybeSingle();
+
+          if (error) throw error;
+
+          if (!data) {
+            throw new Error(
+              "No note was deleted. Check ownership and RLS permissions."
+            );
+          }
+
+          if (editingId === note.id) resetForm();
+
+          const reloaded = await loadNotes();
+
+          if (reloaded) setStatus("Note deleted from the cloud.");
+        } catch (error) {
+          setStatus(
+            "Could not delete note: " +
+            (error.message || "Please try again.")
+          );
+        } finally {
+          setBusy(false);
+        }
+      });
+
+      actions.append(editButton, deleteButton);
+      article.appendChild(actions);
+      fragment.appendChild(article);
+    }
+
+    noteList.appendChild(fragment);
+  }
+
+  // IMPORTANT: verify that Supabase actually returns a saved or updated row.
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    if (!currentUser || !db || busy) {
+      setStatus("Please log in before saving a note.");
+      return;
+    }
+
+    const title = titleInput.value.trim();
+    const content = contentInput.value.trim();
+    const userId = currentUser.id;
+    const noteId = editingId;
+
+    if (!title || !content) {
+      setStatus("Please enter both a title and your note.");
+      return;
+    }
+
+    if (title.length > 120 || content.length > 10000) {
+      setStatus("Your note exceeds the allowed length.");
+      return;
+    }
+
+    setBusy(true);
+    setStatus(
+      noteId ? "Updating your cloud note…" : "Saving to Supabase…"
+    );
+
+    try {
+      let savedRow;
+      let error;
+
+      if (noteId) {
+        // Updating zero rows must not be reported as a successful update.
+        const result = await db
+          .from("notes")
+          .update({ title, content })
+          .eq("id", noteId)
+          .eq("user_id", userId)
+          .select("id,user_id,title,content,created_at")
+          .maybeSingle();
+
+        savedRow = result.data;
+        error = result.error;
+      } else {
+        // Return the inserted row so we can verify the cloud write.
+        const result = await db
+          .from("notes")
+          .insert({
+            user_id: userId,
+            title,
+            content
+          })
+          .select("id,user_id,title,content,created_at")
+          .single();
+
+        savedRow = result.data;
+        error = result.error;
+      }
+
+      if (error) throw error;
+
+      if (!savedRow) {
+        throw new Error(
+          "Supabase did not confirm a saved row. Check table permissions and RLS."
+        );
+      }
+
+      if (savedRow.user_id !== userId) {
+        throw new Error(
+          "The returned note does not belong to the current account."
+        );
+      }
+
+      // Keep the editor intact if the subsequent reload fails.
+      const reloaded = await loadNotes();
+
+      if (!reloaded) {
+        setStatus(
+          "Supabase confirmed the write, but the notes list could not reload. " +
+          "Your note may already be saved online. Check Supabase before retrying."
+        );
+        return;
+      }
+
+      resetForm();
+      setStatus(
+        noteId
+          ? "Your note update was confirmed by Supabase 💖"
+          : "Your note was saved to Supabase successfully 💖"
+      );
+    } catch (error) {
+      setStatus(
+        "Cloud save failed: " +
+        (error.message || "Please try again.") +
+        " Your existing notes have not been intentionally deleted."
+      );
+    } finally {
+      setBusy(false);
+    }
+  });
+
+  cancelButton.addEventListener("click", () => {
+    resetForm();
+    setStatus("Edit cancelled.");
+  });
+
+  async function start() {
+    if (!db) {
+      showSignedOut(
+        "Supabase did not load. Check your internet connection and reload."
+      );
+      loginButton.disabled = true;
+      signupButton.disabled = true;
+      return;
+    }
+
+    try {
+      const { data, error } = await db.auth.getSession();
+
+      if (error) throw error;
+
+      if (data.session && data.session.user) {
+        await showSignedIn(data.session.user);
+      } else {
+        showSignedOut();
+      }
+    } catch (error) {
+      showSignedOut(
+        "Could not check your login session: " +
+        (error.message || "Please reload the page.")
+      );
+    }
+
+    const { data } = db.auth.onAuthStateChange(
+      (_event, sessionNow) => {
+        // Avoid making additional Supabase requests inside the auth callback.
+        if (sessionNow && sessionNow.user) {
+          currentUser = sessionNow.user;
+          authPanel.hidden = true;
+          appPanel.hidden = false;
+
+          const internalEmail = sessionNow.user.email || "";
+
+          signedInEmail.textContent =
+            internalEmail.endsWith("@users.babymind.invalid")
+              ? `Username: ${internalEmail.split("@")[0]}`
+              : (internalEmail || "Signed in");
+
+          setTimeout(() => {
+            if (currentUser &&
+                currentUser.id === sessionNow.user.id) {
+              loadNotes();
+            }
+          }, 0);
+        } else {
+          showSignedOut();
+        }
+      }
+    );
+
+    authSubscription = data.subscription;
+  }
+
+  window.addEventListener("pagehide", () => {
+    if (authSubscription) {
+      authSubscription.unsubscribe();
+    }
+  });
+
+  start();
+})();
+</script>
+</body>
+</html>
