@@ -7,7 +7,6 @@
   <meta name="description" content="BaBy Mind: a colorful space for your thoughts.">
   <title>BaBy Mind | Private Notes</title>
 
-  <!-- Supabase needs its CDN script and your project connection allowed by this policy. -->
   <meta http-equiv="Content-Security-Policy"
     content="default-src 'self';
              script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
@@ -121,8 +120,8 @@
     <h2 id="auth-heading">Welcome to your little space 💗</h2>
     <p class="account-email">Create an account or log in to keep your notes synced online.</p>
     <form id="auth-form">
-      <label for="auth-email">Email address</label>
-      <input id="auth-email" type="email" autocomplete="email" maxlength="254" placeholder="you@example.com" required>
+      <label for="auth-email">Username</label>
+      <input id="auth-email" type="text" autocomplete="username" minlength="3" maxlength="30" pattern="[A-Za-z0-9_]{3,30}" title="Use 3–30 letters, numbers, or underscores only." placeholder="Choose a username" required>
       <label for="auth-password">Password</label>
       <input id="auth-password" type="password" autocomplete="current-password" minlength="6" maxlength="72" placeholder="At least 6 characters" required>
       <div class="actions">
@@ -202,6 +201,16 @@
 
   function setAuthStatus(message) { authStatus.textContent = message; }
   function setStatus(message) { status.textContent = message; }
+
+  // Map usernames to stable internal addresses for Supabase email/password auth.
+  function usernameToEmail(value) {
+    const username = value.trim().toLowerCase();
+    if (!/^[a-z0-9_]{3,30}$/.test(username)) {
+      throw new Error("Username must contain 3–30 letters, numbers, or underscores.");
+    }
+    return `${username}@users.babymind.invalid`;
+  }
+
   function setBusy(value) {
     busy = value;
     loginButton.disabled = value;
@@ -256,16 +265,25 @@
     currentUser = user;
     authPanel.hidden = true;
     appPanel.hidden = false;
-    signedInEmail.textContent = user.email || "Signed in";
+    const internalEmail = user.email || "";
+    signedInEmail.textContent = internalEmail.endsWith("@users.babymind.invalid")
+      ? `Username: ${internalEmail.split("@")[0]}`
+      : (internalEmail || "Signed in");
     setAuthStatus("");
     loadNotes();
   }
 
   async function signUp() {
     if (busy) return;
-    const email = authEmail.value.trim();
-    const password = authPassword.value;
     if (!authForm.reportValidity()) return;
+    let email;
+    try {
+      email = usernameToEmail(authEmail.value);
+    } catch (error) {
+      setAuthStatus(error.message);
+      return;
+    }
+    const password = authPassword.value;
     setBusy(true);
     setAuthStatus("Creating your account…");
     try {
@@ -275,7 +293,7 @@
         showSignedIn(data.user);
         setAuthStatus("");
       } else {
-        setAuthStatus("Account created! Check your email for the confirmation link, then come back and log in.");
+        setAuthStatus("Supabase did not start a session. Turn off email confirmation in Supabase Authentication settings, then try again.");
       }
     } catch (error) {
       setAuthStatus(error.message || "Could not create your account.");
@@ -286,26 +304,39 @@
 
   authForm.addEventListener("submit", async event => {
     event.preventDefault();
-    if (!db) { setAuthStatus("The Supabase library did not load. Check your internet connection and reload this page."); return; }
+    if (!db) {
+      setAuthStatus("Supabase did not load. Check your internet connection and reload this page.");
+      return;
+    }
     if (busy || !authForm.reportValidity()) return;
+    let email;
+    try {
+      email = usernameToEmail(authEmail.value);
+    } catch (error) {
+      setAuthStatus(error.message);
+      return;
+    }
     setBusy(true);
     setAuthStatus("Logging you in…");
     try {
       const { data, error } = await db.auth.signInWithPassword({
-        email: authEmail.value.trim(),
+        email,
         password: authPassword.value
       });
       if (error) throw error;
       showSignedIn(data.user);
     } catch (error) {
-      setAuthStatus(error.message || "Could not log in. Check your email and password.");
+      setAuthStatus(error.message || "Could not log in. Check your username and password.");
     } finally {
       setBusy(false);
     }
   });
 
   signupButton.addEventListener("click", async () => {
-    if (!db) { setAuthStatus("The Supabase library did not load. Check your internet connection and reload this page."); return; }
+    if (!db) {
+      setAuthStatus("Supabase did not load. Check your internet connection and reload this page.");
+      return;
+    }
     await signUp();
   });
 
@@ -318,7 +349,9 @@
       showSignedOut("You have logged out safely. See you soon! 💗");
     } catch (error) {
       setStatus(error.message || "Could not log out.");
-    } finally { setBusy(false); }
+    } finally {
+      setBusy(false);
+    }
   });
 
   async function loadNotes() {
@@ -327,6 +360,7 @@
     const { data, error } = await db
       .from("notes")
       .select("id,user_id,title,content,created_at")
+      .eq("user_id", currentUser.id)
       .order("created_at", { ascending: false });
     if (error) {
       notes = [];
@@ -369,10 +403,15 @@
         setStatus("You are editing this note.");
       });
       deleteButton.addEventListener("click", async () => {
+        if (!currentUser) return;
         if (!window.confirm(`Delete "${note.title}"? This cannot be undone.`)) return;
         setStatus("Deleting note…");
-        const { error } = await db.from("notes").delete().eq("id", note.id).eq("user_id", currentUser.id);
-        if (error) { setStatus("Could not delete note: " + error.message); return; }
+        const { error } = await db.from("notes").delete()
+          .eq("id", note.id).eq("user_id", currentUser.id);
+        if (error) {
+          setStatus("Could not delete note: " + error.message);
+          return;
+        }
         if (editingId === note.id) resetForm();
         await loadNotes();
         setStatus("Note deleted.");
@@ -389,8 +428,14 @@
     if (!currentUser || !db || busy) return;
     const title = titleInput.value.trim();
     const content = contentInput.value.trim();
-    if (!title || !content) { setStatus("Please enter both a title and your note."); return; }
-    if (title.length > 120 || content.length > 10000) { setStatus("Your note exceeds the allowed length."); return; }
+    if (!title || !content) {
+      setStatus("Please enter both a title and your note.");
+      return;
+    }
+    if (title.length > 120 || content.length > 10000) {
+      setStatus("Your note exceeds the allowed length.");
+      return;
+    }
     setBusy(true);
     setStatus(editingId ? "Updating your note…" : "Saving your note…");
     try {
@@ -409,7 +454,9 @@
       setStatus("Your note is saved safely online 💖");
     } catch (error) {
       setStatus("Could not save note: " + (error.message || "Please try again."));
-    } finally { setBusy(false); }
+    } finally {
+      setBusy(false);
+    }
   });
 
   cancelButton.addEventListener("click", () => {
@@ -424,14 +471,17 @@
       signupButton.disabled = true;
       return;
     }
-    const { data: { session } } = await db.auth.getSession();
-    if (session && session.user) showSignedIn(session.user);
+    const { data: { session }, error } = await db.auth.getSession();
+    if (error) showSignedOut("Could not check your login session. Please reload the page.");
+    else if (session && session.user) showSignedIn(session.user);
     else showSignedOut();
+
     db.auth.onAuthStateChange((_event, sessionNow) => {
       if (sessionNow && sessionNow.user) showSignedIn(sessionNow.user);
       else showSignedOut();
     });
   }
+
   start();
 })();
 </script>
